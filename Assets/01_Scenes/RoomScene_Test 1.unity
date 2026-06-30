@@ -2138,7 +2138,7 @@ MonoBehaviour:
   _fireParticles: []
   _extinguishDuration: 4
   _extinguishStageCount: 5
-  _disableWhenExtinguished: 0
+  _disableWhenExtinguished: 1
 --- !u!135 &884900401
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2217,7 +2217,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -3406,7 +3406,7 @@ MonoBehaviour:
   _fireParticles: []
   _extinguishDuration: 4
   _extinguishStageCount: 5
-  _disableWhenExtinguished: 0
+  _disableWhenExtinguished: 1
 --- !u!135 &2010872071
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3485,7 +3485,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -3611,7 +3611,7 @@ MonoBehaviour:
   _fireParticles: []
   _extinguishDuration: 4
   _extinguishStageCount: 5
-  _disableWhenExtinguished: 0
+  _disableWhenExtinguished: 1
 --- !u!135 &2048865151
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3690,7 +3690,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -3750,7 +3750,7 @@ MonoBehaviour:
   _fireParticles: []
   _extinguishDuration: 4
   _extinguishStageCount: 5
-  _disableWhenExtinguished: 0
+  _disableWhenExtinguished: 1
 --- !u!135 &2125038525
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3829,7 +3829,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -13787,9 +13787,9 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 4367faa3579163e49a0a498ba6f0d3c8, type: 3}
+  m_Resource: {fileID: 8300000, guid: a034a013e8d5c0245afa57c1eb61aca4, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -13833,7 +13833,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

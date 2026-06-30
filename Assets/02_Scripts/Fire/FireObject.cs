@@ -28,9 +28,17 @@ namespace FireLink119.Fire
         
         // 불이 꺼졌을때의 후속 동작이 필요하다면 여기 이벤트 구독하면 됨
         public event Action OnExtinguished;
+        
+        // 기존 필드들 아래에 추가
+        private AudioSource _audioSource;
+        private float _initialVolume;
 
         private void Awake()
         {
+            _audioSource = GetComponent<AudioSource>();
+            if (_audioSource != null)
+                _initialVolume = _audioSource.volume;
+
             if (_fireParticles == null || _fireParticles.Length == 0)
                 _fireParticles = GetComponentsInChildren<ParticleSystem>();
 
@@ -93,6 +101,11 @@ namespace FireLink119.Fire
                 main.startSize = ScaleCurve(state.StartSize, intensity);
                 main.startLifetime = ScaleCurve(state.StartLifetime, intensity);
             }
+
+            if (_audioSource != null)
+            {
+                _audioSource.volume = _initialVolume * intensity;
+            }
         }
 
         private ParticleSystem.MinMaxCurve ScaleCurve(ParticleSystem.MinMaxCurve curve, float scale)
@@ -121,19 +134,45 @@ namespace FireLink119.Fire
         {
             _isExtinguished = true;
 
-            // 여기에서 불꺼졌을때의 이벤트 발행
             OnExtinguished?.Invoke();
-            
+
             foreach (ParticleSystem ps in _fireParticles)
             {
                 if (ps == null) continue;
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
 
+            if (_audioSource != null)
+                _audioSource.volume = 0f;
+
             if (_disableWhenExtinguished)
             {
                 gameObject.SetActive(false);
             }
         }
+
+        #region 플레이어 불 진입 (피해 피드백)
+        // todo : 나중에 플레이어 UI 관련 요소 생기면 여기서 피드백 연결
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Player"))
+            {
+                Debug.Log("=====Player Enter=====");
+                // 어기에서 데미지 코루틴
+                // other.transform.GetComponent<PlayerUI>().ChangeScreenVignette(true);
+                // other.transform.GetComponent<PlayerUI>().PlayDamageSFX(true);
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.CompareTag("Player"))
+            {
+                Debug.Log("=====Player Exit=====");
+                // other.transform.GetComponent<PlayerUI>().ChangeScreenVignette(false);
+                // other.transform.GetComponent<PlayerUI>().PlayDamageSFX(false);
+            }
+        }
+        #endregion
     }
 }

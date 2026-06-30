@@ -15,10 +15,13 @@ public class Extinguisher : MonoBehaviour
 
     private XRGrabInteractable _grabInteractable;
     private bool isFiring = false;
-
+    
+    private AudioSource _extinguisherSFX;
+    
     private void Awake()
     {
         _grabInteractable = GetComponent<XRGrabInteractable>();
+        _extinguisherSFX = GetComponent<AudioSource>();
 
         if (_rayOrigin == null)
             _rayOrigin = transform;
@@ -40,6 +43,9 @@ public class Extinguisher : MonoBehaviour
     {
         if (_smokeParticle != null && !isFiring)
             _smokeParticle.Play();
+        
+        if (_extinguisherSFX != null && !_extinguisherSFX.isPlaying)
+            _extinguisherSFX.Play();
 
         isFiring = true;
     }
@@ -48,6 +54,9 @@ public class Extinguisher : MonoBehaviour
     {
         if (_smokeParticle != null && isFiring)
             _smokeParticle.Stop();
+        
+        if (_extinguisherSFX != null)
+            _extinguisherSFX.Stop();
 
         isFiring = false;
     }
