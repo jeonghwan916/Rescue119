@@ -11,6 +11,10 @@ namespace FireLink119.NPC
     
         [Header("Flag")]
         [SerializeField] private bool _hasEntered = false;
+
+        [Header("Dialogue")]
+        [SerializeField] private AudioClip _dialogueSound;
+        [SerializeField] private string _dialogueText = "Temporary";
     
         private NPCController _npcController;
 
@@ -21,7 +25,9 @@ namespace FireLink119.NPC
                 _hasEntered = true;
             
                 _npcController = other.gameObject.GetComponent<NPCController>();
-
+                
+                _npcController.PlayDialogue(_dialogueSound, _dialogueText);
+                
                 // The controller owns the route; this trigger only supplies route data.
                 if (_doorTarget != null)
                 {

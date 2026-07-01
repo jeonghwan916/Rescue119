@@ -34,7 +34,11 @@ namespace FireLink119.NPC
 
         [Header("Door")]
         [SerializeField] private GameObject _currentOpeningDoor;
-    
+
+        [Header("Calmdown Dialogue")]
+        [SerializeField] private AudioClip[] _calmDownClips;
+        [SerializeField] private string[] _calmDownTexts;
+     
         private static readonly int SpeedHash = Animator.StringToHash("Speed");
         private static readonly int MotionSpeedHash = Animator.StringToHash("MotionSpeed");
         private static readonly int GroundedHash = Animator.StringToHash("Grounded");
@@ -54,13 +58,15 @@ namespace FireLink119.NPC
         private Transform _finalDestination;
         private bool _isOpeningDoor;
         private bool _isDead;
+        private AudioSource _audioSource;
 
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _animator = GetComponent<Animator>();
-
+            _audioSource = GetComponent<AudioSource>();
+            
             ApplyStopDistanceForState();
             _agent.updateRotation = true;
 
@@ -248,6 +254,16 @@ namespace FireLink119.NPC
 
         public void StartFollowingPlayer(PlayerType playerType)
         {
+            bool wasInterrupted = _state == NPCState.GoingDoor ||
+                                  _state == NPCState.OpeningDoor ||
+                                  _state == NPCState.GoingFinalDestination;
+
+            if (wasInterrupted)
+            {
+                Debug.Log($"Interrupted");
+                PlayRandomCalmDownDialogue();
+            }
+            
             ClearRouteTargets();
             SetState(NPCState.Follow);
             CancelOpeningDoor();
@@ -261,7 +277,13 @@ namespace FireLink119.NPC
                 SetCurrentTarget(_followablePlayer2);
             }
         }
-    
+
+        private void PlayRandomCalmDownDialogue()
+        {
+            int index = Random.Range(0, _calmDownClips.Length);
+            PlayDialogue(_calmDownClips[index], _calmDownTexts[index]);
+        }
+
         public void SetTarget(Transform target)
         {
             ClearRouteTargets();
@@ -304,21 +326,6 @@ namespace FireLink119.NPC
         public void ToggleCrouch()
         {
             _isCrouching = !_isCrouching;
-        }
-        
-        public void SetDoorStopDistance(bool isApproachingDoor)
-        {
-            if (_agent != null)
-            {
-                if (isApproachingDoor)
-                {
-                    _agent.stoppingDistance = _doorStopDistance;
-                }
-                else
-                {
-                    _agent.stoppingDistance = _normalStopDistance;
-                }
-            }
         }
 
         private void BeginOpeningDoor()
@@ -419,6 +426,14 @@ namespace FireLink119.NPC
             _animator.SetBool(IsCrouchingHash, false);
 
             _animator.SetTrigger(deathTriggerHash);
+        }
+
+        public void PlayDialogue(AudioClip clip, string text)
+        {
+            //_audioSource.Stop();
+            _audioSource.PlayOneShot(clip);
+            
+            // todo : 말풍선에다 텍스트도 출력
         }
     }
 }
