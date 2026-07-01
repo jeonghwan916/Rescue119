@@ -1,18 +1,21 @@
 using UnityEngine;
 
-public class NPCStateMachineBehaviour : StateMachineBehaviour
+namespace FireLink119.NPC
 {
-    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    public class NPCStateMachineBehaviour : StateMachineBehaviour
     {
-        // Only a naturally completed animation should advance the NPC route.
-        if (stateInfo.normalizedTime < 1f)
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            return;
-        }
+            // Only a naturally completed animation should advance the NPC route.
+            if (stateInfo.normalizedTime < 1f)
+            {
+                return;
+            }
 
-        if (animator.TryGetComponent(out NPCController npcController))
-        {
-            npcController.FinishOpeningDoor();
+            if (animator.TryGetComponent(out NPCController npcController))
+            {
+                npcController.FinishOpeningDoor();
+            }
         }
     }
 }
