@@ -1,4 +1,5 @@
 using Fusion;
+using FireLink119.Player;
 using UnityEngine;
 
 namespace FireLink119.Network
@@ -7,6 +8,7 @@ namespace FireLink119.Network
     {
         [SerializeField] private Transform _avatarRoot;
         [SerializeField] private Animator _animator;
+        [SerializeField] private PlayerAvatarHandTargets _handTargets;
         [SerializeField] private bool _hideForInputAuthority = true;
         [SerializeField] private float _parameterDampTime = 0.1f;
 
@@ -18,6 +20,10 @@ namespace FireLink119.Network
 
         [Networked] private Vector3 AvatarPosition { get; set; }
         [Networked] private Quaternion AvatarRotation { get; set; }
+        [Networked] private Vector3 LeftHandLocalPosition { get; set; }
+        [Networked] private Quaternion LeftHandLocalRotation { get; set; }
+        [Networked] private Vector3 RightHandLocalPosition { get; set; }
+        [Networked] private Quaternion RightHandLocalRotation { get; set; }
         [Networked] private Vector2 MoveBlend { get; set; }
         [Networked] private NetworkBool IsMoving { get; set; }
         [Networked] private NetworkBool IsSprinting { get; set; }
@@ -37,6 +43,22 @@ namespace FireLink119.Network
             if (_animator == null)
             {
                 _animator = GetComponentInChildren<Animator>();
+            }
+
+            if (_handTargets == null)
+            {
+                _handTargets = GetComponent<PlayerAvatarHandTargets>();
+            }
+
+            if (_handTargets == null)
+            {
+                _handTargets = GetComponentInChildren<PlayerAvatarHandTargets>();
+            }
+
+            if (_handTargets == null)
+            {
+                // Network avatars only need named IK targets inside the prefab; the helper resolves them at runtime.
+                _handTargets = gameObject.AddComponent<PlayerAvatarHandTargets>();
             }
 
             CacheAnimatorParameters();
@@ -69,6 +91,10 @@ namespace FireLink119.Network
 
             AvatarPosition = input.AvatarPosition;
             AvatarRotation = input.AvatarRotation;
+            LeftHandLocalPosition = input.LeftHandLocalPosition;
+            LeftHandLocalRotation = input.LeftHandLocalRotation;
+            RightHandLocalPosition = input.RightHandLocalPosition;
+            RightHandLocalRotation = input.RightHandLocalRotation;
             MoveBlend = input.MoveBlend;
             IsMoving = input.IsMoving;
             IsSprinting = input.IsSprinting;
@@ -77,6 +103,7 @@ namespace FireLink119.Network
         public override void Render()
         {
             ApplyNetworkPose();
+            ApplyHandTargets();
             ApplyAnimatorParameters();
         }
 
@@ -88,6 +115,20 @@ namespace FireLink119.Network
             }
 
             _avatarRoot.SetPositionAndRotation(AvatarPosition, AvatarRotation);
+        }
+
+        private void ApplyHandTargets()
+        {
+            if (_handTargets == null)
+            {
+                return;
+            }
+
+            _handTargets.ApplyLocalHandTargets(
+                LeftHandLocalPosition,
+                LeftHandLocalRotation,
+                RightHandLocalPosition,
+                RightHandLocalRotation);
         }
 
         private void ApplyAnimatorParameters()
