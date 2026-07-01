@@ -5,6 +5,8 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace FireLink119.UI
 {
+    [RequireComponent(typeof(LobbyRoomCodeFlow))]
+    [RequireComponent(typeof(FusionRoomConnector))]
     public class RoomSceneLoadButtons : MonoBehaviour
     {
         // 현재 로비 버튼은 샘플 오브젝트를 복사해 쓰는 구조라서, 프리팹 연결을 건드리지 않도록 이름으로 찾는다.
@@ -24,7 +26,7 @@ namespace FireLink119.UI
             _roomCodeFlow = GetComponent<LobbyRoomCodeFlow>();
             if (_roomCodeFlow == null)
             {
-                _roomCodeFlow = gameObject.AddComponent<LobbyRoomCodeFlow>();
+                Debug.LogError("[RoomSceneLoadButtons] LobbyRoomCodeFlow is required on the same GameObject.");
             }
         }
 
@@ -78,12 +80,22 @@ namespace FireLink119.UI
         private void OnHostButtonSelected(SelectEnterEventArgs args)
         {
             // 호스트 버튼은 바로 네트워크를 시작하지 않고, 먼저 호스트용 코드 입력 패드를 연다.
+            if (_roomCodeFlow == null)
+            {
+                return;
+            }
+
             _roomCodeFlow.ShowRoomCodePad(LobbyRoomRole.Host);
         }
 
         private void OnClientButtonSelected(SelectEnterEventArgs args)
         {
             // 클라이언트도 같은 입력 흐름을 쓰되, 제출 시 Client 모드로 접속하도록 역할만 넘긴다.
+            if (_roomCodeFlow == null)
+            {
+                return;
+            }
+
             _roomCodeFlow.ShowRoomCodePad(LobbyRoomRole.Client);
         }
     }

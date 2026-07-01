@@ -66,11 +66,11 @@ namespace FireLink119.UI
 
         private FusionRoomConnector ResolveConnector()
         {
-            // 네트워크 시작 책임은 별도 컴포넌트에 두고, 없으면 현재 로비 제어 오브젝트에 런타임으로 붙인다.
+            // 네트워크 시작 설정은 Inspector 참조가 필요하므로, 같은 오브젝트에 미리 붙은 컴포넌트만 사용한다.
             FusionRoomConnector connector = GetComponent<FusionRoomConnector>();
             if (connector == null)
             {
-                connector = gameObject.AddComponent<FusionRoomConnector>();
+                Debug.LogError("[LobbyRoomCodeFlow] FusionRoomConnector is required on the same GameObject.");
             }
 
             return connector;
@@ -182,6 +182,12 @@ namespace FireLink119.UI
             if (roomCode.Length != _maxDigits)
             {
                 Debug.LogWarning($"[LobbyRoomCodeFlow] Room code must be {_maxDigits} digits.");
+                return;
+            }
+
+            if (_connector == null)
+            {
+                Debug.LogError("[LobbyRoomCodeFlow] Cannot start room because FusionRoomConnector is not assigned.");
                 return;
             }
 
