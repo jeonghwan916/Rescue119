@@ -1,4 +1,3 @@
-using System;
 using FireLink119.Player;
 using UnityEngine;
 
@@ -8,8 +7,12 @@ public class SmokeObject : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerCough playerCough = other.gameObject.GetComponent<PlayerCough>();
-            playerCough.StartCough();
+            PlayerCough playerCough = other.GetComponent<PlayerCough>();
+
+            if (playerCough != null)
+            {
+                playerCough.StartCough();
+            }
         }
     }
 
@@ -17,8 +20,12 @@ public class SmokeObject : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerCough playerCough = other.gameObject.GetComponent<PlayerCough>();
-            playerCough.StopCough();
+            PlayerCough playerCough = other.GetComponent<PlayerCough>();
+
+            if (playerCough != null)
+            {
+                playerCough.StopCough();
+            }
         }
     }
 }
