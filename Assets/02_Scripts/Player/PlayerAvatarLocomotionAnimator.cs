@@ -30,6 +30,11 @@ namespace FireLink119.Player
         private bool _warnedMissingAnimator;
         private bool _warnedMissingMoveAction;
 
+        public Transform AvatarRoot => _avatarRoot != null ? _avatarRoot : transform;
+        public Vector2 CurrentMoveBlend { get; private set; }
+        public bool IsMoving { get; private set; }
+        public bool IsSprinting { get; private set; }
+
         private void Awake()
         {
             if (_animator == null)
@@ -94,6 +99,10 @@ namespace FireLink119.Player
             float normalizedMoveAmount = isMoving ? Mathf.InverseLerp(_moveDeadZone, 1f, moveAmount) : 0f;
             bool isSprinting = isMoving && _sprintAction != null && _sprintAction.IsPressed();
             Vector2 moveBlend = isMoving ? GetLocalMoveBlend(moveInput, normalizedMoveAmount) : Vector2.zero;
+
+            CurrentMoveBlend = moveBlend;
+            IsMoving = isMoving;
+            IsSprinting = isSprinting;
 
             ApplyAnimatorParameters(moveBlend, isMoving, isSprinting);
         }

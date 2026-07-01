@@ -9,6 +9,9 @@ namespace FireLink119.Network
     {
         [SerializeField] private string _roomSceneName = "RoomScene";
         [SerializeField] private int _maxPlayers = 2;
+        [SerializeField] private NetworkPrefabRef _playerAvatarPrefab;
+        [SerializeField] private Vector3 _playerSpawnOrigin = Vector3.zero;
+        [SerializeField] private float _playerSpawnSpacing = 1.5f;
 
         private bool _isStarting;
         private NetworkRunner _runner;
@@ -42,6 +45,10 @@ namespace FireLink119.Network
 
             _runner = runnerObject.AddComponent<NetworkRunner>();
             _runner.ProvideInput = true;
+
+            runnerObject.AddComponent<NetworkAvatarInputProvider>();
+            NetworkAvatarSpawner avatarSpawner = runnerObject.AddComponent<NetworkAvatarSpawner>();
+            avatarSpawner.Initialize(_playerAvatarPrefab, _playerSpawnOrigin, _playerSpawnSpacing);
 
             NetworkSceneManagerDefault sceneManager = runnerObject.AddComponent<NetworkSceneManagerDefault>();
 
