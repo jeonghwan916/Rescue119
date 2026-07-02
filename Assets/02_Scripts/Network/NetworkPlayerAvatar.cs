@@ -101,6 +101,16 @@ namespace FireLink119.Network
             RPC_RequestRoomStartButtonPress((int)buttonRole);
         }
 
+        public void RequestEmergencyDoorPush(int doorId, float openAngleDelta)
+        {
+            if (!HasInputAuthority)
+            {
+                return;
+            }
+
+            RPC_RequestEmergencyDoorPush(doorId, openAngleDelta);
+        }
+
         public override void FixedUpdateNetwork()
         {
             // StateAuthority만 입력을 읽어 Networked 상태를 갱신한다. 다른 클라이언트는 복제된 값을 Render에서 적용한다.
@@ -276,6 +286,25 @@ namespace FireLink119.Network
         {
             Debug.Log("[NetworkPlayerAvatar] Room game start approved. Scene loading is intentionally not executed yet.");
             RoomGameStartApproved?.Invoke();
+        }
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+        private void RPC_RequestEmergencyDoorPush(int doorId, float openAngleDelta, RpcInfo info = default)
+        {
+            float safeOpenAngleDelta = Mathf.Clamp(openAngleDelta, -5f, 5f);
+            if (!NetworkEmergencyDoor.TryApplyPushAsStateAuthority(doorId, safeOpenAngleDelta, out float openAngle))
+            {
+                Debug.LogWarning($"[NetworkPlayerAvatar] Emergency door not found. DoorId: {doorId}");
+                return;
+            }
+
+            RPC_NotifyEmergencyDoorAngle(doorId, openAngle);
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_NotifyEmergencyDoorAngle(int doorId, float openAngle)
+        {
+            NetworkEmergencyDoor.ApplyNetworkAngle(doorId, openAngle);
         }
 
         private void TryApproveRoomGameStart()
