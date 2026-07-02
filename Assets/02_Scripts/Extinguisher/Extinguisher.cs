@@ -48,6 +48,7 @@ namespace FireLink119.Extinguisher
         private float _nextPoseDebugTime;
         private float _nextPoseReceiveDebugTime;
         private bool _isSpawned;
+        private bool _isLocallySelected;
         private bool _lastRenderedFiring;
         private bool _lastRenderedSafetyPinPulled;
 
@@ -114,6 +115,16 @@ namespace FireLink119.Extinguisher
             _isSpawned = false;
         }
 
+        private void Update()
+        {
+            if (!IsNetworkReady || HasStateAuthority || !ShouldSendLocalPose() || Time.time < _nextPoseSendTime)
+            {
+                return;
+            }
+
+            SendHeldPose();
+        }
+
         public override void FixedUpdateNetwork()
         {
             if (!IsNetworkReady)
@@ -141,20 +152,7 @@ namespace FireLink119.Extinguisher
 
             if (IsLocallyHeld() && Time.time >= _nextPoseSendTime)
             {
-                _nextPoseSendTime = Time.time + _poseSendInterval;
-
-                Transform rayOrigin = GetRayOrigin();
-                if (Time.time >= _nextPoseDebugTime)
-                {
-                    _nextPoseDebugTime = Time.time + 0.5f;
-                    Debug.Log($"[Extinguisher][SendPose] local={Runner.LocalPlayer} hasState={HasStateAuthority} held={IsHeld} heldBy={HeldBy} pos={transform.position} rayPos={rayOrigin.position}");
-                }
-
-                RPC_SendHeldPose(
-                    transform.position,
-                    transform.rotation,
-                    rayOrigin.position,
-                    rayOrigin.rotation);
+                SendHeldPose();
             }
         }
 
@@ -175,12 +173,14 @@ namespace FireLink119.Extinguisher
 
         private void OnGrabbed(SelectEnterEventArgs args)
         {
+            _isLocallySelected = true;
             Debug.Log($"[Extinguisher][OnGrabbed] local={GetLocalPlayerDebug()} hasState={HasStateAuthority} ready={IsNetworkReady} held={NetworkIsHeld} heldByLocal={IsHeldByLocalPlayer} pos={transform.position}");
             RequestGrab();
         }
 
         private void OnReleased(SelectExitEventArgs args)
         {
+            _isLocallySelected = false;
             Debug.Log($"[Extinguisher][OnReleased] local={GetLocalPlayerDebug()} hasState={HasStateAuthority} ready={IsNetworkReady} held={NetworkIsHeld} heldByLocal={IsHeldByLocalPlayer} pos={transform.position}");
             RequestRelease();
         }
@@ -275,6 +275,24 @@ namespace FireLink119.Extinguisher
             }
 
             RPC_RequestFiring(firing);
+        }
+
+        private void SendHeldPose()
+        {
+            _nextPoseSendTime = Time.time + _poseSendInterval;
+
+            Transform rayOrigin = GetRayOrigin();
+            if (Time.time >= _nextPoseDebugTime)
+            {
+                _nextPoseDebugTime = Time.time + 0.5f;
+                Debug.Log($"[Extinguisher][SendPose] local={Runner.LocalPlayer} hasState={HasStateAuthority} selected={_isLocallySelected} held={IsHeld} heldBy={HeldBy} heldByLocal={IsHeldByLocalPlayer} pos={transform.position} rayPos={rayOrigin.position}");
+            }
+
+            RPC_SendHeldPose(
+                transform.position,
+                transform.rotation,
+                rayOrigin.position,
+                rayOrigin.rotation);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -481,11 +499,6 @@ namespace FireLink119.Extinguisher
 
             _lastRenderedSafetyPinPulled = pulled;
 
-            if (_safetyPinGrabInteractable != null)
-            {
-                _safetyPinGrabInteractable.enabled = !pulled;
-            }
-
             foreach (GameObject visual in _safetyPinVisuals)
             {
                 if (visual != null)
@@ -503,6 +516,11 @@ namespace FireLink119.Extinguisher
         private bool IsHeldByOtherPlayer()
         {
             return IsHeld && HeldBy != Runner.LocalPlayer;
+        }
+
+        private bool ShouldSendLocalPose()
+        {
+            return _isLocallySelected || IsLocallyHeld();
         }
 
         private string GetLocalPlayerDebug()

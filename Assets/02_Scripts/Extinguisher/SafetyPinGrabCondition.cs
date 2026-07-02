@@ -34,19 +34,56 @@ namespace FireLink119.Extinguisher
 
         public bool Process(IXRSelectInteractor interactor, IXRSelectInteractable interactable)
         {
+            string interactorName = interactor.transform != null
+                ? interactor.transform.name
+                : "UnknownInteractor";
+
+            string interactableName = interactable.transform != null
+                ? interactable.transform.name
+                : "UnknownInteractable";
+
+            bool isSocket = interactor is XRSocketInteractor;
+
             if (_extinguisher == null)
             {
-                return CanGrabByLocalFallback(interactor);
+                bool fallbackResult = CanGrabByLocalFallback(interactor);
+
+                Debug.Log(
+                    $"[SafetyPinGrabCondition][Process] extinguisher=null " +
+                    $"interactor={interactorName} interactable={interactableName} " +
+                    $"isSocket={isSocket} result={fallbackResult}");
+
+                return fallbackResult;
             }
 
-            if (interactor is XRSocketInteractor)
+            if (isSocket)
             {
-                return CanSelectBySocket();
+                bool socketResult = CanSelectBySocket();
+
+                Debug.Log(
+                    $"[SafetyPinGrabCondition][Process] socket " +
+                    $"interactor={interactorName} interactable={interactableName} " +
+                    $"ready={_extinguisher.IsNetworkReady} " +
+                    $"pinPulled={_extinguisher.NetworkIsSafetyPinPulled} " +
+                    $"result={socketResult}");
+
+                return socketResult;
             }
 
-            return CanGrabByLocalPlayer(interactor);
-        }
+            bool result = CanGrabByLocalPlayer(interactor);
 
+            Debug.Log(
+                $"[SafetyPinGrabCondition][Process] hand " +
+                $"interactor={interactorName} interactable={interactableName} " +
+                $"ready={_extinguisher.IsNetworkReady} " +
+                $"held={_extinguisher.NetworkIsHeld} " +
+                $"heldByLocal={_extinguisher.IsHeldByLocalPlayer} " +
+                $"pinPulled={_extinguisher.NetworkIsSafetyPinPulled} " +
+                $"result={result}");
+
+            return result;
+        }
+        
         private bool CanSelectBySocket()
         {
             if (!_allowSocketSelectionBeforePulled)
@@ -72,11 +109,6 @@ namespace FireLink119.Extinguisher
             if (!_extinguisher.IsNetworkReady)
             {
                 return CanGrabByLocalFallback(interactor);
-            }
-
-            if (_extinguisher.NetworkIsSafetyPinPulled)
-            {
-                return false;
             }
 
             return _extinguisher.IsHeldByLocalPlayer;

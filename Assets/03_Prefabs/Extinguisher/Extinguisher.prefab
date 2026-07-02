@@ -5649,7 +5649,6 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2722525320102824734}
-  - {fileID: 1882896541935586338}
   ForceRemoteRenderTimeframe: 0
 --- !u!1 &7950569006448082556
 GameObject:
@@ -5936,7 +5935,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02738a5ecb78e3449ac1e6c1609c6b77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FireLink119.Extinguisher.SafetyPinGrabCondition
-  _extinguisher: {fileID: 0}
+  _extinguisher: {fileID: 2722525320102824734}
   _extinguisherGrab: {fileID: 1783658178640606797}
   _allowSocketSelectionBeforePulled: 1
   _blockSocketSelectionAfterPulled: 1

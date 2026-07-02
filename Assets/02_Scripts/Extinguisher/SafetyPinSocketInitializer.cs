@@ -1,5 +1,4 @@
 using System.Collections;
-using Fusion;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -7,7 +6,8 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace FireLink119.Extinguisher
 {
-    public class SafetyPinSocketInitializer : NetworkBehaviour
+    [RequireComponent(typeof(XRSocketInteractor))]
+    public class SafetyPinSocketInitializer : MonoBehaviour
     {
         [SerializeField] private XRSocketInteractor _socket;
         [SerializeField] private XRGrabInteractable _safetyPin;
@@ -47,7 +47,7 @@ namespace FireLink119.Extinguisher
             }
         }
 
-        public override void Spawned()
+        private void Start()
         {
             StartCoroutine(RestoreSocketAfterSpawn());
         }
@@ -60,7 +60,11 @@ namespace FireLink119.Extinguisher
                 yield return null;
             }
 
-            RestoreSafetyPinToSocket();
+            for (int i = 0; i < frames; i++)
+            {
+                RestoreSafetyPinToSocket();
+                yield return null;
+            }
         }
 
         private void RestoreSafetyPinToSocket()
@@ -110,8 +114,7 @@ namespace FireLink119.Extinguisher
                 return;
             }
 
-            string localPlayer = Runner != null ? Runner.LocalPlayer.ToString() : "NoRunner";
-            Debug.Log($"[SafetyPinSocketInitializer] local={localPlayer} {message}");
+            Debug.Log($"[SafetyPinSocketInitializer] {message}");
         }
     }
 }
